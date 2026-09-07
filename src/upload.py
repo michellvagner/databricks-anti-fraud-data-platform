@@ -2,7 +2,7 @@
 from pathlib import Path
 import tempfile
 import os
-
+import time
 from kaggle.api.kaggle_api_extended import KaggleApi
 from databricks.sdk import WorkspaceClient
 
@@ -96,23 +96,44 @@ def download_from_kaggle(
     destination: Path,
     files_to_download: list[str],
 ) -> None:
-
     if not files_to_download:
         return
-    
+
     api = get_kaggle_api()
-    api.authenticate()
 
     for file_name in files_to_download:
         print(f"Baixando do Kaggle: {file_name}")
 
-        api.dataset_download_file(
-            DATASET,
-            file_name,
-            path=str(destination),
-            force=True,
-            quiet=False,
-        )
+        for attempt in range(5):
+            try:
+                api.dataset_download_file(
+                    DATASET,
+                    file_name,
+                    path=str(destination),
+                    force=True,
+                    quiet=False,
+                )
+
+                print(f"Download concluído: {file_name}")
+                break
+
+            except Exception as error:
+                if "429" not in str(error):
+                    raise
+
+                print(
+                    f"Rate limit do Kaggle para {file_name}. "
+                    f"Tentativa {attempt + 1}/5. "
+                    f"Aguardando 20 segundos..."
+                )
+
+                time.sleep(20)
+
+        else:
+            raise RuntimeError(
+                f"Não foi possível baixar {file_name} "
+                "após 5 tentativas."
+            )
 
 # %%
 def upload_to_databricks(
