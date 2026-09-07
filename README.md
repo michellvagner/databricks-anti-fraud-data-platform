@@ -64,17 +64,17 @@ flowchart LR
 
 Por ser um projeto acadêmico, o ambiente é criado rapidamente para uma demonstração e removido logo em seguida. Terraform e os scripts Python cuidam disso.
 
+### Observacão
 
-## Observacão
+Este projeto foi configurado para funcionar em diferentes ambientes, permitindo sua execução tanto diretamente no **Windows** quanto através de um **Dev Container** (Linux).
 
-Este projeto foi configurado para funcionar em diferentes ambientes, permitindo sua execução tanto diretamente no **Windows** quanto através de um **Dev Container**.
+## Configurando o Ambiente 
 
-No Dev Container:
+### No Dev Container:
 
-No devcontainer todo o ambiente já esta configurado, você só precisa configurar as credenciais no dotenv necessárias para rodar e então realizar as configurações abaixo:
+No devcontainer todo o ambiente já esta configurado, você só precisa **configurar as credenciais no dotenv** necessárias para rodar e então realizar as configurações abaixo:
 
-
-Pegar as variáveis do .env e colocá-las como variáveis de ambiente do terminal atual.
+1. Pegar as variáveis do .env e colocá-las como variáveis de ambiente do terminal atual.
 
 ```bash
 set -a
@@ -82,27 +82,27 @@ source .env
 set +a
 ```
 
-Verificar de forma segura se a variável KAGGLE_API_TOKEN existe e não está vazia sem mostrar o token.
+2. Verificar de forma segura se a variável KAGGLE_API_TOKEN existe e não está vazia sem mostrar o token.
 
 ```bash
 echo ${KAGGLE_API_TOKEN:+CONFIGURADO}
 ```
 
-Realizar uma cópia da variável KAGGLE_API_TOKEN para outra variável chamada TF_VAR_kaggle_api_token.
+3. Realizar uma cópia da variável KAGGLE_API_TOKEN para outra variável chamada TF_VAR_kaggle_api_token.
 
 ```bash
 export TF_VAR_kaggle_api_token="$KAGGLE_API_TOKEN"
 ```
 
-Verificar de forma segura se a variável TF_VAR_kaggle_api_token existe e não está vazia sem mostrar o token.
+4. Verificar de forma segura se a variável TF_VAR_kaggle_api_token existe e não está vazia sem mostrar o token.
 
 ```bash
 echo ${TF_VAR_kaggle_api_token:+CONFIGURADO}
 ```
 
-No Windows: 
+### No Windows: 
 
-Script PowerShell para Windows que lê o .env e transforma cada variável dele em uma variável de ambiente do Windows.
+1. Script PowerShell para Windows que lê o .env e transforma cada variável dele em uma variável de ambiente do Windows.
 
 ```bash
 Get-Content .env | ForEach-Object {
@@ -112,8 +112,50 @@ Get-Content .env | ForEach-Object {
  }
 ```
 
-Realizar uma cópia da variável KAGGLE_API_TOKEN para outra variável chamada TF_VAR_kaggle_api_token.
+2. Realizar uma cópia da variável KAGGLE_API_TOKEN para outra variável chamada TF_VAR_kaggle_api_token.
 
 ```bash
 $env:TF_VAR_kaggle_api_token = $env:KAGGLE_API_TOKEN
 ```
+
+
+## Executando
+
+1. Acessar a pasta terraform com:
+
+```bash
+cd terraform/
+```
+
+>Se for a primeira vez execute: (Ignore se não for a primeira vez)
+
+```bash
+terraform init 
+```
+
+2. Execute dentro da pasta terraform o comando:
+```bash
+terraform apply -auto-approve 
+```
+
+Após a execução do Terraform, o lab estará provisionado e disponível no Databricks. Para visualizar o pipeline em funcionamento, acesse **Jobs & Pipelines** e execute o Job `anti-fraud-pipeline`. O workflow irá consultar os dados disponíveis no Kaggle, realizar a ingestão e o processamento dos arquivos e, ao final, alimentar as camadas **Bronze, Silver e Gold**.
+
+
+## Parte 6 - Destruição da infraestrutura
+
+Ao final da execução, não esqueça de destruir todos os artefatos no databricks.
+Para isso siga os passos abaixo:
+
+1. Garanta que você esteja em /databricks-anti-fraud-data-platform (Para voltar pastas digite o comando `cd ..`)
+
+2. Execute o cleanup.py
+```bash
+uv run python /cleanup.py  
+```
+
+3. Acesse a pasta terraform novamente com `cd terraform/` e digite o comando abaixo:
+```bash
+terraform destroy -auto-approve
+```
+
+Feito esses passos você não terá mais nenhum recurso provisionado no Databricks
