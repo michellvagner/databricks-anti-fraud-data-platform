@@ -1,0 +1,22 @@
+[project]
+name = "databricks-anti-fraud-data-plataform"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Vagner Michell", email = "vagner.michell@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "databricks-sdk>=0.136.0",
+    "ipykernel>=7.3.0",
+    "kaggle>=2.2.4",
+    "polars>=1.44.1",
+]
+
+[project.scripts]
+databricks-anti-fraud-data-plataform = "databricks_anti_fraud_data_plataform:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
