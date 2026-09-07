@@ -141,20 +141,18 @@ def upload_to_databricks(
     source: Path,
     files_to_upload: list[str],
 ) -> None:
-    
-
     for file_name in files_to_upload:
-
         local_file = source / file_name
         remote_file = f"{VOLUME_PATH}/{file_name}"
 
         print(f"Enviando para Databricks: {file_name}")
 
-        workspace.files.upload_from(
-            remote_file,
-            str(local_file),
-            overwrite=False,
-        )
+        with open(local_file, "rb") as f:
+            workspace.files.upload(
+                remote_file,
+                f,
+                overwrite=False,
+            )
 
         print(f"OK: {remote_file}")
 
