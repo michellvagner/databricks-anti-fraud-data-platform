@@ -39,3 +39,6 @@ terraform.tfvars
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Devcontainer
+.devcontainer/devcontainer-lock.json
