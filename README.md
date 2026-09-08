@@ -140,6 +140,104 @@ terraform apply -auto-approve
 
 Após a execução do Terraform, o lab estará provisionado e disponível no Databricks. Para visualizar o pipeline em funcionamento, acesse **Jobs & Pipelines** e execute o Job `anti-fraud-pipeline`. O workflow irá consultar os dados disponíveis no Kaggle, realizar a ingestão e o processamento dos arquivos e, ao final, alimentar as camadas **Bronze, Silver e Gold**.
 
+## CONSUMO DATABRICKS
+
+Após executar o pipeline, é possível consultar o consumo de DBUs gerado pelo Job
+e estimar o custo da execução.
+
+O Databricks registra o consumo na tabela `system.billing.usage`. Como o objetivo
+deste projeto é comparar o custo de processamento entre Databricks e Snowflake,
+o consumo é relacionado ao preço atual da SKU utilizada pelo Job.
+
+A consulta abaixo:
+
+- identifica as execuções do Job `anti-fraud-pipeline`;
+- apresenta a data e hora de início e término de cada execução;
+- soma os DBUs consumidos;
+- obtém o preço atual do DBU através de `system.billing.list_prices`;
+- calcula uma estimativa do custo em USD.
+
+O preço utilizado é o preço mais recente registrado para a SKU
+`PREMIUM_JOBS_SERVERLESS_COMPUTE_US_EAST_OHIO`. Dessa forma, o cálculo representa
+quanto o consumo registrado custaria considerando o preço atual do DBU.
+
+> **Importante:** o consumo de billing pode levar algum tempo para aparecer no
+> `system.billing.usage`. Portanto, uma execução recém-finalizada pode não estar
+> disponível imediatamente para consulta.
+
+```sql
+with cte_list_price as
+(
+select
+    sku_name,
+    cloud,
+    pricing.default AS price_per_dbu,
+    price_start_time,
+    price_end_time
+from system.billing.list_prices
+where sku_name = 'PREMIUM_JOBS_SERVERLESS_COMPUTE_US_EAST_OHIO'
+qualify row_number() over (partition by sku_name order by price_start_time desc) = 1
+)
+select
+    usage_metadata.job_id,
+    usage_metadata.job_name,
+    usage_metadata.job_run_id,
+    usage_start_time,
+    usage_end_time,
+    usage.sku_name,
+    usage_unit,
+    sum(usage_quantity) AS total_usage,
+    list_price.price_per_dbu price_per_dbu,
+    sum(usage_quantity) * list_price.price_per_dbu consume 
+from system.billing.usage usage
+left join cte_list_price list_price on usage.sku_name = list_price.sku_name
+where usage_metadata.job_name = 'anti-fraud-pipeline'
+group by all
+order by total_usage desc;
+
+```
+
+### BENCHMARK DE CONSUMO
+
+Para este projeto foram realizadas três execuções para avaliar o consumo do
+Databricks em diferentes cenários:
+
+1. **Execução inicial completa:** processamento de todos os arquivos disponíveis
+   no dataset do Kaggle.
+2. **Primeira execução incremental:** processamento de arquivos adicionados
+   posteriormente.
+3. **Segunda execução incremental:** novo processamento considerando arquivos
+   adicionados posteriormente.
+
+Os valores de consumo obtidos foram:
+
+| Execução | Cenário | DBU | Preço por DBU | Custo estimado | Custo mensal estimado (Custo de cada execução * 30) |
+|---|---|---:|---:|---:|---:|
+| 1 | Carga inicial completa | `0.517036357142857143` | `0.350000000000000000` | `US$ 0.180963` | `US$ 5.428890` |
+| 2 | Incremental | `0.248338521428571429` | `0.350000000000000000` | `US$ 0.086918` | `US$ 2.607540` |
+| 3 | Incremental | `0.248338521428571429` | `0.350000000000000000` | `US$ 0.086918` | `US$ 2.607540` |
+
+Considerando os valores observados nas três execuções, podemos estimar o custo
+de processamento para um período de 30 dias.
+
+Para isso, considera-se a execução inicial como um custo único e as duas
+execuções incrementais como uma aproximação do consumo diário:
+
+**Custo estimado em 30 dias = Execução inicial + (Incremental 1 + Incremental 2) × 30**
+
+```text
+Custo inicial:       US$ XX
+Incremental 1:       US$ XX
+Incremental 2:       US$ XX
+--------------------------------
+Consumo diário no primeiro dia:      US$ XX
+Consumo diário nos demais dias:      US$ XX
+
+Estimativa 30 dias:
+US$ XX + (US$ XX × 30) = US$ XX
+```
+
+> Storage: a carga completa ocupa aproximadamente 338 MiB (0,33 GiB) no Databricks Default Storage. Durante o período de execução do benchmark, o sistema de billing registrou 0,1438794 DSU em operações de API. O workspace utilizado no projeto não apresentou registros de STORAGE_SPACE no período analisado, portanto esse componente não foi incluído no cálculo financeiro do benchmark.
 
 ## Parte 6 - Destruição da infraestrutura
 
@@ -157,5 +255,3 @@ uv run python /cleanup.py
 ```bash
 terraform destroy -auto-approve
 ```
-
-Feito esses passos você não terá mais nenhum recurso provisionado no Databricks
