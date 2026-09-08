@@ -214,9 +214,10 @@ Os valores de consumo obtidos foram:
 
 | Execução | Cenário | DBU | Preço por DBU | Custo estimado | Custo mensal estimado (Custo de cada execução * 30) |
 |---|---|---:|---:|---:|---:|
-| 1 | Carga inicial completa | `0.517036357142857143` | `0.350000000000000000` | `US$ 0.180963` | `US$ 5.428890` |
+| 1 | Carga inicial completa | `0.517036357142857143` | `0.350000000000000000` | `US$ 0.180963` | ` - ` |
 | 2 | Incremental | `0.248338521428571429` | `0.350000000000000000` | `US$ 0.086918` | `US$ 2.607540` |
 | 3 | Incremental | `0.248338521428571429` | `0.350000000000000000` | `US$ 0.086918` | `US$ 2.607540` |
+| 4 | Total | ` - ` | ` - ` | ` - ` | `US$ 5.396043` |
 
 Considerando os valores observados nas três execuções, podemos estimar o custo
 de processamento para um período de 30 dias.
@@ -227,15 +228,15 @@ execuções incrementais como uma aproximação do consumo diário:
 **Custo estimado em 30 dias = Execução inicial + (Incremental 1 + Incremental 2) × 30**
 
 ```text
-Custo inicial:       US$ XX
-Incremental 1:       US$ XX
-Incremental 2:       US$ XX
+Custo inicial:       US$ 0.180963
+Incremental 1:       US$ 0.086918
+Incremental 2:       US$ 0.086918
 --------------------------------
-Consumo diário no primeiro dia:      US$ XX
-Consumo diário nos demais dias:      US$ XX
+Consumo diário no primeiro dia:      US$ 0.180963
+Consumo diário nos demais dias:      US$ 0.086918
 
 Estimativa 30 dias:
-US$ XX + (US$ XX × 30) = US$ XX
+US$ 0.180963 + (US$ 0.086918 × 30) * 2 = US$ 5.396043
 ```
 
 > Storage: a carga completa ocupa aproximadamente 338 MiB (0,33 GiB) no Databricks Default Storage. Durante o período de execução do benchmark, o sistema de billing registrou 0,1438794 DSU em operações de API. O workspace utilizado no projeto não apresentou registros de STORAGE_SPACE no período analisado, portanto esse componente não foi incluído no cálculo financeiro do benchmark.
