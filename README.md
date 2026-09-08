@@ -189,6 +189,7 @@ select
     sum(usage_quantity) AS total_usage,
     list_price.price_per_dbu price_per_dbu,
     sum(usage_quantity) * list_price.price_per_dbu consume 
+    (SUM(usage_quantity) * list_price.price_per_dbu) * 30 month_consume
 from system.billing.usage usage
 left join cte_list_price list_price on usage.sku_name = list_price.sku_name
 where usage_metadata.job_name = 'anti-fraud-pipeline'
