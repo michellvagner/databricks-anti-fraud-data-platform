@@ -109,6 +109,8 @@ A comparação considera aspectos como arquitetura, processamento, custos, escal
 ![Snowflake Anti-Fraud Data Platform](snowflake-runs/silver-table.png)
 ![Snowflake Anti-Fraud Data Platform](snowflake-runs/gold-table.png)
 
+![Snowflake Anti-Fraud Data Platform](snowflake-runs/snowflake-gold-query.png)
+
 ## 3.2 — A comparação (as dimensões que vocês vão avaliar)
 
 **Facilidade de uso** -> Curva de aprendizado, interface, quão rápido vocês colocaram de pé. \

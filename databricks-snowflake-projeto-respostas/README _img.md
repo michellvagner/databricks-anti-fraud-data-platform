@@ -86,7 +86,30 @@ A comparação considera aspectos como arquitetura, processamento, custos, escal
 
 ### Resposta
 
--- Colocar uns prints aqui depois
+### DATABRICKS
+
+![Databricks Anti-Fraud Data Platform](databricks-runs/databricks-job.png)
+![Databricks Anti-Fraud Data Platform](databricks-runs/databricks-job_run.png)
+
+![Databricks Anti-Fraud Data Platform](databricks-runs/databricks-landing.png)
+![Databricks Anti-Fraud Data Platform](databricks-runs/databricks-bronze-layer.png)
+![Databricks Anti-Fraud Data Platform](databricks-runs/databricks-silver-layer.png)
+![Databricks Anti-Fraud Data Platform](databricks-runs/databricks-gold-layer.png)
+
+![Databricks Anti-Fraud Data Platform](databricks-runs/databricks-gold-query.png)
+
+### SNOWFLAKE
+
+![Snowflake Anti-Fraud Data Platform](snowflake-runs/snowflake-pipe.png)
+![Snowflake Anti-Fraud Data Platform](snowflake-runs/snowflake-silver-transaction-task.png)
+![Snowflake Anti-Fraud Data Platform](snowflake-runs/snowflake-gold-transaction-task.png)
+
+
+![Snowflake Anti-Fraud Data Platform](snowflake-runs/bronze-table.png)
+![Snowflake Anti-Fraud Data Platform](snowflake-runs/silver-table.png)
+![Snowflake Anti-Fraud Data Platform](snowflake-runs/gold-table.png)
+
+![Snowflake Anti-Fraud Data Platform](snowflake-runs/snowflake-gold-query.png)
 
 ## 3.2 — A comparação (as dimensões que vocês vão avaliar)
 
